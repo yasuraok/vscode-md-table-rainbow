@@ -52,12 +52,14 @@ export const activate = (context: vscode.ExtensionContext): void => {
       dispose(cursorDecoType);
       cursorDecoType = undefined;
     }
-    const cursorColor = getConfig().get<string>('cursorColor', 'rgba(100,50,180,0.8)');
-    cursorDecoType = vscode.window.createTextEditorDecorationType({
-      backgroundColor: cursorColor,
-      rangeBehavior: vscode.DecorationRangeBehavior.ClosedOpen,
-    });
-    context.subscriptions.push(cursorDecoType);
+    const cursorColor = getConfig().get<string | null>('cursorColor', 'rgba(100,50,180,0.8)');
+    if (cursorColor !== null) {
+      cursorDecoType = vscode.window.createTextEditorDecorationType({
+        backgroundColor: cursorColor,
+        rangeBehavior: vscode.DecorationRangeBehavior.ClosedOpen,
+      });
+      context.subscriptions.push(cursorDecoType);
+    }
 
   };
   createResources(true);
@@ -92,7 +94,7 @@ export const activate = (context: vscode.ExtensionContext): void => {
           editor.document.positionAt(startPos),
           editor.document.positionAt(startPos + matchColumn[0].length)
         );
-        if (index === cursorColumn) {
+        if (cursorDecoType && index === cursorColumn) {
           cursorOpt.push({ range });
         } else {
           options[index % options.length].push({ range });
